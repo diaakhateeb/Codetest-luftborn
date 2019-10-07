@@ -1,0 +1,53 @@
+﻿@model Models.User
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<link href="~/css/DataTable/css/dataTables.bootstrap4.css" rel="stylesheet" />
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/DataTable/jquery.dataTables.min.js"></script>
+<script src="~/js/DataTable/dataTables.bootstrap4.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(() => {
+        @if (TempData["errorMsg"] != null)
+        {
+            @:document.getElementById("addResult").innerHTML = '@TempData["errorMsg"].ToString()';
+        }
+    });
+</script>
+<div id="addResult" style="text-align: center; color: white; background-color: red; font-weight:bolder"></div><br />
+
+@using (Html.BeginForm("Add", "User", FormMethod.Post))
+{
+    <div class="text-center">
+        <table id="usersTable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>E-mail</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@Html.EditorFor(m => m.Name)</td>
+                    <td>@Html.EditorFor(m => m.UserName)</td>
+                    <td>@Html.EditorFor(m => m.Email)</td>
+                    <td>@Html.EditorFor(m => m.Address)</td>
+                    <td>@Html.EditorFor(m => m.PhoneNumber)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center">
+        <input type="submit" value="Save" class="btn btn-success" />
+        &nbsp;&nbsp;&nbsp;
+        <input type="button" value="Cancel" class="btn btn-secondary" onclick='location.href="@Url.Action("Index", "Home")"' />
+    </div>
+}

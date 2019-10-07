@@ -1,0 +1,90 @@
+﻿@model List<Models.User>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="~/css/DataTable/css/buttons.bootstrap4.css" rel="stylesheet" />
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="~/js/DataTable/dataTables.bootstrap4.min.js"></script>
+<script src="~/js/DataTable/dataTables.buttons.min.js"></script>
+
+<script src="~/js/user.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(() => {
+        $.noConflict();
+        $("#usersTable").DataTable({
+            initComplete: () => {
+                this.api().columns().every(() => {
+                    var column = this;
+                    var select = $('<select><option value=""></option></select>')
+                        .appendTo($(column.footer()).empty())
+                        .on('change', () => {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+
+                            column
+                                .search(val ? '^' + val + '$' : '', true, false)
+                                .draw();
+                        });
+
+                    column.data().unique().sort().each((d) => {
+                        select.append('<option value="' + d + '">' + d + '</option>');
+                    });
+                });
+            }
+        });
+    });
+</script>
+
+<table class="table">
+    <tr>
+        <td>
+            <button class="btn btn-secondary" onclick="location.href = '@Url.Action("Add", "User")'">New User</button>
+        </td>
+        <td>
+            <h1 class="display-4">Users</h1>
+        </td>
+    </tr>
+</table>
+
+<table id="usersTable" class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>E-mail</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th class="text-center">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td onclick='getUserById("@user.Id")'>@user.Name</td>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>@user.PhoneNumber</td>
+                <td>@user.Address</td>
+                <td class="text-center">
+                    <button class="btn btn-primary" onclick='location.href = "@Url.Action("Edit", "User", new {id = @user.Id})"'>Edit</button>
+                    <button class="btn btn-danger" onclick="deleteUser('@user.Id')">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div id="userModal">
+
+</div>
