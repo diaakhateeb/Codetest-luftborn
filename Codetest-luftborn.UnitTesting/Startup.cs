@@ -16,7 +16,7 @@ namespace Tests
             var serviceCollection = new ServiceCollection();
 
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory() + @"..\..\..\..\")
+                .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile(path: "appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
