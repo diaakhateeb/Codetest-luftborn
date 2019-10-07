@@ -72,7 +72,7 @@
         @foreach (var user in Model)
         {
             <tr>
-                <td onclick='getUserById("@user.Id")'>@user.Name</td>
+                <td onclick='getUserById("@user.Id")'><a href="#">@user.Name</a></td>
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
                 <td>@user.PhoneNumber</td>
@@ -85,6 +85,6 @@
         }
     </tbody>
 </table>
-<div id="userModal">
+<div id="userModal" style="text-align:center">
 
 </div>
