@@ -75,7 +75,7 @@ namespace WebApi.Controllers
                     return new JsonResult(new { success = false, responseText = "User is not valid." });
                 }
 
-                if (!_userService.IsExisted(newUser.UserName, newUser.Email))
+                if (_userService.IsExisted(newUser.UserName, newUser.Email))
                 {
                     return new JsonResult(new
                     { success = false, responseText = "User email or username already taken." });
