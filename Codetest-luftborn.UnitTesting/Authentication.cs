@@ -1,48 +1,43 @@
 using Luftborn.Helpers;
-using Models;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Tests
 {
     public class Authentication
     {
+        private ClientProvider _clientProvider;
+
         [SetUp]
         public void Setup()
         {
             Startup.Initialize();
+            _clientProvider = new ClientProvider();
         }
 
         [Test]
-        public void Login_OK()
+        public async Task Login_OK()
         {
-            using (var cnt = new ClientProvider())
-            {
-                cnt.Client.BaseAddress = new Uri("http://localhost/");
-                var loginResult = cnt.Client
-                    .PostAsJsonAsync("LuftbornWebApi/api/Authentication/AuthenticateUser?username=Bondo", "Bondo").Result;
+            var loginResult = await _clientProvider.Client
+                .PostAsJsonAsync("http://localhost/LuftbornWebApi/api/Authentication/AuthenticateUser?username=Bondo", "Bondo");
 
-                if (loginResult.IsSuccessStatusCode)
-                {
-                    var user = JsonConvert.DeserializeObject<User>(loginResult.Content.ReadAsStringAsync().Result);
-                    Assert.IsNotNull(user);
-                }
+            if (loginResult.IsSuccessStatusCode)
+            {
+                var user = JsonConvert.DeserializeObject<User>(await loginResult.Content.ReadAsStringAsync());
+                Assert.IsNotNull(user);
             }
         }
 
         [Test]
-        public void Login_Fail()
+        public async Task Login_Fail()
         {
-            using (var cnt = new ClientProvider())
-            {
-                cnt.Client.BaseAddress = new Uri("http://localhost/");
-                var loginResult = cnt.Client
-                    .PostAsJsonAsync("LuftbornWebApi/api/Authentication/AuthenticateUser?username=John", "John").Result;
+            var loginResult = await _clientProvider.Client
+                .PostAsJsonAsync("http://localhost/LuftbornWebApi/api/Authentication/AuthenticateUser?username=John", "John");
 
-                Assert.AreEqual(loginResult.IsSuccessStatusCode, false);
-            }
+            Assert.AreEqual(loginResult.StatusCode, HttpStatusCode.Unauthorized);
         }
     }
 }

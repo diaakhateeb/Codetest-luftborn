@@ -7,6 +7,7 @@ using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using WebApi.Services.Interfaces;
 using WebApi.Specifications;
 
@@ -39,9 +40,9 @@ namespace WebApi.Controllers
         /// </summary>
         /// <returns>Returns all users in Json format.</returns>
         [HttpGet]
-        public JsonResult GetAll()
+        public async Task<JsonResult> GetAll()
         {
-            var users = _userService.GetAll();
+            var users = await _userService.GetAll();
             return new JsonResult(users);
         }
 
@@ -51,9 +52,9 @@ namespace WebApi.Controllers
         /// <param name="id">User Id.</param>
         /// <returns>Returns user object in Json format.</returns>
         [HttpGet]
-        public JsonResult GetUserById(string id)
+        public async Task<JsonResult> GetUserById(string id)
         {
-            var user = _userService.FindUserById(id);
+            var user = await _userService.FindUserById(id);
             return Json(user);
         }
 
@@ -64,7 +65,7 @@ namespace WebApi.Controllers
         /// <returns>Returns JsonResult object with success flag.</returns>
         /// <exception cref="ArgumentException"></exception>
         [HttpPost]
-        public JsonResult Add(JObject user)
+        public async Task<JsonResult> Add(JObject user)
         {
             try
             {
@@ -75,13 +76,12 @@ namespace WebApi.Controllers
                     return new JsonResult(new { success = false, responseText = "User is not valid." });
                 }
 
-                if (_userService.IsExisted(newUser.UserName, newUser.Email))
+                if (await _userService.IsExisted(newUser.UserName, newUser.Email))
                 {
-                    return new JsonResult(new
-                    { success = false, responseText = "User email or username already taken." });
+                    return new JsonResult(new { success = false, responseText = "User email or username already taken." });
                 }
 
-                _userService.AddUser(newUser);
+                await _userService.AddUser(newUser);
                 return new JsonResult(new { success = true, responseText = "User successfully added!" });
             }
             catch (JsonException jsonExp)
@@ -106,20 +106,20 @@ namespace WebApi.Controllers
         /// <param name="users">List of users to be inserted.</param>
         /// <returns>Returns JsonResult object with success flag.</returns>
         [HttpPost]
-        public JsonResult AddMany(ICollection<User> users)
+        public async Task<JsonResult> AddMany(ICollection<User> users)
         {
             var satisfiedUsersList = new List<User>();
 
-            users.AsParallel().ForAll(x =>
+            users.AsParallel().ForAll(async x =>
             {
-                if (_userService.FindUserById(x.Id) == null)
+                if (await _userService.FindUserById(x.Id) == null)
                 {
                     if (new UserSpecification().IsSatisfiedBy(x))
                         satisfiedUsersList.Add(x);
                 }
             });
 
-            _userService.AddManyUsers(satisfiedUsersList);
+            await _userService.AddManyUsers(satisfiedUsersList);
             return new JsonResult(new { success = true, responseText = "Users successfully added!" });
         }
 
@@ -166,9 +166,9 @@ namespace WebApi.Controllers
         /// <param name="id">User Id.</param>
         /// <returns>Returns JsonResult object with success flag.</returns>
         [HttpDelete]
-        public JsonResult Delete(string id)
+        public async Task<JsonResult> Delete(string id)
         {
-            _userService.DeleteUser(id);
+            await _userService.DeleteUser(id);
 
             return new JsonResult(new { success = true, responseText = "User successfully deleted!" });
         }

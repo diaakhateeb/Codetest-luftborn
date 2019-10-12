@@ -1,4 +1,5 @@
 ﻿using Luftborn.Helpers;
+using Luftborn.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -8,63 +9,53 @@ using Serilog;
 using System;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Luftborn.Controllers
 {
     public class UserController : Controller
     {
         private readonly IConfiguration _iConfig;
+        private readonly ClientProvider _clientProvider;
 
-        public UserController(IConfiguration iConfig)
+        public UserController(IConfiguration iConfig, ClientProvider clientProvider)
         {
             _iConfig = iConfig;
+            _clientProvider = clientProvider;
         }
 
         [Authorize]
-        public IActionResult Edit(string id = "0")
+        public async Task<IActionResult> Edit(string id = "0")
         {
-            using (var cnt = new ClientProvider())
-            {
-                var usersUrl = _iConfig.GetSection("Urls").GetValue<string>("Users");
-                var uri = new Uri(usersUrl);
+            var editUserUrl = _iConfig.GetSection("Urls").GetSection("Users").GetValue<string>("FindUserService");
+            var userResult = await _clientProvider.Client.GetAsync(editUserUrl + "?id=" + id);
 
-                cnt.Client.BaseAddress = new Uri(uri.Scheme + "://" + uri.Host);
-                var userResult = cnt.Client.GetAsync(usersUrl + "/GetUserById?id=" + id).Result;
+            if (!userResult.IsSuccessStatusCode)
+                return View();
 
-                if (!userResult.IsSuccessStatusCode)
-                    return View();
-                var user = JsonConvert.DeserializeObject<User>(userResult.Content.ReadAsStringAsync().Result);
+            var user = JsonConvert.DeserializeObject<User>(await userResult.Content.ReadAsStringAsync());
 
-                return View(user);
-            }
+            return View(user);
         }
 
         [HttpPost, Authorize]
-        public IActionResult Edit(User userData)
+        public async Task<IActionResult> Edit(User userData)
         {
             try
             {
-                using (var cnt = new ClientProvider())
-                {
-                    var usersUrl = _iConfig.GetSection("Urls").GetValue<string>("Users");
-                    var uri = new Uri(usersUrl);
+                var editUserUrl = _iConfig.GetSection("Urls").GetSection("Users").GetValue<string>("EditService");
+                var updateUserResult = await _clientProvider.Client.PatchAsync(editUserUrl,
+                        new StringContent(JsonConvert.SerializeObject(userData), Encoding.UTF8, "application/json"));
 
-                    cnt.Client.BaseAddress = new Uri(uri.Scheme + "://" + uri.Host);
-                    var updateUserResult = cnt.Client.PatchAsync(
-                            usersUrl + "/Change",
-                            new StringContent(JsonConvert.SerializeObject(userData), Encoding.UTF8, "application/json"))
-                        .Result;
-
-                    if (!updateUserResult.IsSuccessStatusCode)
-                        return View();
-
-                    var result = JsonConvert.DeserializeObject<dynamic>(updateUserResult.Content.ReadAsStringAsync().Result);
-                    if (result.success == true)
-                        return RedirectToAction("Index", "Home");
-
-                    TempData["errorMsg"] = result.responseText;
+                if (!updateUserResult.IsSuccessStatusCode)
                     return View();
-                }
+
+                var result = JsonConvert.DeserializeObject<dynamic>(await updateUserResult.Content.ReadAsStringAsync());
+                if (result.success == true)
+                    return RedirectToAction("Index", "Home");
+
+                TempData["errorMsg"] = result.responseText;
+                return View();
             }
             catch (HttpRequestException httpReqExp)
             {
@@ -89,31 +80,25 @@ namespace Luftborn.Controllers
         }
 
         [HttpPost, Authorize]
-        public IActionResult Add(User user)
+        public async Task<IActionResult> Add(RegisterViewModel user)
         {
             try
             {
-                using (var cnt = new ClientProvider())
-                {
-                    var usersUrl = _iConfig.GetSection("Urls").GetValue<string>("Users");
-                    var uri = new Uri(usersUrl);
-                    cnt.Client.BaseAddress = new Uri(uri.Scheme + "://" + uri.Host);
+                var usersUrl = _iConfig.GetSection("Urls").GetSection("Users").GetValue<string>("AddService");
+                var userResult = await _clientProvider.Client.PostAsync(usersUrl,
+                    new StringContent(
+                        JsonConvert.SerializeObject(user),
+                        Encoding.UTF8, "application/json"));
 
-                    var userResult = cnt.Client.PostAsync(usersUrl + "/Add",
-                        new StringContent(
-                            JsonConvert.SerializeObject(user),
-                            Encoding.UTF8, "application/json")).Result;
-
-                    if (!userResult.IsSuccessStatusCode)
-                        return View();
-
-                    var result = JsonConvert.DeserializeObject<dynamic>(userResult.Content.ReadAsStringAsync().Result);
-                    if (result.success == true)
-                        return RedirectToAction("Index", "Home");
-
-                    TempData["errorMsg"] = result.responseText;
+                if (!userResult.IsSuccessStatusCode)
                     return View();
-                }
+
+                var result = JsonConvert.DeserializeObject<dynamic>(await userResult.Content.ReadAsStringAsync());
+                if (result.success == true)
+                    return RedirectToAction("Index", "Home");
+
+                TempData["errorMsg"] = result.responseText;
+                return View();
             }
             catch (HttpRequestException httpReqExp)
             {

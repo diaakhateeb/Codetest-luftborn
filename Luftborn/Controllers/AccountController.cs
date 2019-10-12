@@ -4,19 +4,21 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Luftborn.Controllers
 {
     public class AccountController : Controller
     {
         private readonly IConfiguration _iConfig;
-        public AccountController(IConfiguration iConfig)
+        private readonly ClientProvider _clientProvider;
+        public AccountController(IConfiguration iConfig, ClientProvider clientProvider)
         {
             _iConfig = iConfig;
+            _clientProvider = clientProvider;
         }
         public IActionResult Login()
         {
@@ -24,29 +26,23 @@ namespace Luftborn.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult Login(LoginViewModel loginVm)
+        public async Task<IActionResult> Login(LoginViewModel loginVm)
         {
-            using (var cnt = new ClientProvider())
-            {
-                var loginUrl = _iConfig.GetSection("Urls").GetSection("Auth").GetValue<string>("Login");
-                var uri = new Uri(loginUrl);
+            var loginUrl = _iConfig.GetSection("Urls").GetSection("Auth").GetValue<string>("Login");
+            var loginResult = await _clientProvider.Client.PostAsJsonAsync(loginUrl + "?username=" + loginVm.Username, loginVm);
 
-                cnt.Client.BaseAddress = new Uri(uri.Scheme + "://" + uri.Host);
-                var loginResult = cnt.Client.PostAsJsonAsync(loginUrl + "?username=" + loginVm.Username, loginVm).Result;
+            if (!loginResult.IsSuccessStatusCode)
+                return View();
 
-                if (!loginResult.IsSuccessStatusCode)
-                    return View();
-
-                var claims = new List<Claim>
+            var claims = new List<Claim>
                 {
                     new Claim("Username", loginVm.Username)
                 };
 
-                HttpContext.SignInAsync(
-                    new ClaimsPrincipal(
-                        new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme))).Wait();
-                return RedirectToAction("Index", "Home");
-            }
+            await HttpContext.SignInAsync(
+                new ClaimsPrincipal(
+                    new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)));
+            return RedirectToAction("Index", "Home");
         }
 
         public IActionResult Logout()

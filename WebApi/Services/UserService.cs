@@ -1,6 +1,7 @@
 ﻿using Models;
 using Repository.Interfaces;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Services
@@ -15,19 +16,19 @@ namespace WebApi.Services
             //_appSettings = appSettings.Value;
         }
 
-        public IEnumerable<User> GetAll()
+        public async Task<IEnumerable<User>> GetAll()
         {
-            return _userRepo.GetAll().Result;
+            return await _userRepo.GetAll();
         }
 
-        public void AddUser(User newUser)
+        public async Task AddUser(User newUser)
         {
-            _userRepo.Add(newUser).Wait();
+            await _userRepo.Add(newUser);
         }
 
-        public void AddManyUsers(ICollection<User> entities)
+        public async Task AddManyUsers(ICollection<User> entities)
         {
-            _userRepo.AddMany(entities as ICollection<User>).Wait();
+            await _userRepo.AddMany(entities);
         }
 
         public void UpdateUser(User user)
@@ -35,21 +36,20 @@ namespace WebApi.Services
             _userRepo.ReplaceOneSync(user.Id, user);
         }
 
-        public void DeleteUser(string id)
+        public async Task DeleteUser(string id)
         {
-            _userRepo.Delete(x => x.Id == id).Wait();
+            await _userRepo.Delete(x => x.Id == id);
         }
 
-        public User FindUserById(string id)
+        public async Task<User> FindUserById(string id)
         {
-            return _userRepo.GetSingleByExpression(x => x.Id == id).Result;
+            return await _userRepo.GetSingleByExpression(x => x.Id == id);
         }
 
-        public bool IsExisted(string userName, string email)
+        public async Task<bool> IsExisted(string userName, string email)
         {
-            var user = _userRepo.GetByExpression(
-                x => x.UserName == userName && x.Email == email)
-                .Result;
+            var user = await _userRepo.GetSingleByExpression(
+                x => x.UserName == userName && x.Email == email);
             return user != null;
         }
     }

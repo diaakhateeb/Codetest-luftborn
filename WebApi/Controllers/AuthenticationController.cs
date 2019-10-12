@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using System.Threading.Tasks;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Controllers
@@ -23,9 +24,9 @@ namespace WebApi.Controllers
         /// <returns>Returns Http response result.</returns>
         [HttpPost("[action]")]
         [AllowAnonymous]
-        public IActionResult AuthenticateUser(string username)
+        public async Task<IActionResult> AuthenticateUser(string username)
         {
-            var user = _authService.Authenticate(username);
+            var user = await _authService.Authenticate(username);
 
             if (user == null)
                 return Unauthorized("User is not found.");

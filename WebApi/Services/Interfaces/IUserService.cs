@@ -1,5 +1,6 @@
 ﻿using Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace WebApi.Services.Interfaces
 {
@@ -12,17 +13,17 @@ namespace WebApi.Services.Interfaces
         /// Gets all users.
         /// </summary>
         /// <returns>Returns collection of exised users.</returns>
-        IEnumerable<User> GetAll();
+        Task<IEnumerable<User>> GetAll();
         /// <summary>
         /// Adds new user.
         /// </summary>
         /// <param name="newUser">New user data object.</param>
-        void AddUser(User newUser);
+        Task AddUser(User newUser);
         /// <summary>
         /// Adds bulk of users.
         /// </summary>
         /// <param name="entities">Collection of user objects.</param>
-        void AddManyUsers(ICollection<User> entities);
+        Task AddManyUsers(ICollection<User> entities);
         /// <summary>
         /// Updates user.
         /// </summary>
@@ -32,20 +33,20 @@ namespace WebApi.Services.Interfaces
         /// Deletes user.
         /// </summary>
         /// <param name="id">User Id to be deleted.</param>
-        void DeleteUser(string id);
+        Task DeleteUser(string id);
         /// <summary>
         /// Finds user by Id.
         /// </summary>
         /// <param name="id">User Id.</param>
         /// <returns>Returns user object or null.</returns>
-        User FindUserById(string id);
+        Task<User> FindUserById(string id);
         /// <summary>
         /// Checks if user is existed.
         /// </summary>
         /// <param name="userName">User username.</param>
         /// <param name="email">User email.</param>
         /// <returns>Returns true if user existed. Otherwise, false.</returns>
-        bool IsExisted(string userName, string email);
+        Task<bool> IsExisted(string userName, string email);
 
     }
 }

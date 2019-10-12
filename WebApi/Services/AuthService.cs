@@ -1,4 +1,5 @@
 ﻿using Repository.Interfaces;
+using System.Threading.Tasks;
 using WebApi.Services.Interfaces;
 
 namespace WebApi.Services
@@ -18,9 +19,9 @@ namespace WebApi.Services
         {
             _userRepo = userRepo;
         }
-        public T Authenticate(string username)
+        public async Task<T> Authenticate(string username)
         {
-            var user = _userRepo.GetSingleByExpression(u => u.UserName == username).Result;
+            var user = await _userRepo.GetSingleByExpression(u => u.UserName == username);
 
             return user as T;
         }

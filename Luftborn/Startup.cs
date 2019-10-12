@@ -54,6 +54,7 @@ namespace Luftborn
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAuthService<User>, AuthService<User>>();
             services.AddScoped<IUserService, UserService>();
+            services.AddSingleton<ClientProvider, ClientProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
