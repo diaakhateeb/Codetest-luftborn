@@ -32,13 +32,13 @@ namespace Luftborn.Controllers
             if (!userResult.IsSuccessStatusCode)
                 return View();
 
-            var user = JsonConvert.DeserializeObject<RegisterViewModel>(await userResult.Content.ReadAsStringAsync());
+            var user = JsonConvert.DeserializeObject<UserViewModel>(await userResult.Content.ReadAsStringAsync());
 
             return View(user);
         }
 
         [HttpPost, Authorize]
-        public async Task<IActionResult> Edit(RegisterViewModel userData)
+        public async Task<IActionResult> Edit(UserViewModel userData)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace Luftborn.Controllers
         }
 
         [HttpPost, Authorize]
-        public async Task<IActionResult> Add(RegisterViewModel user)
+        public async Task<IActionResult> Add(UserViewModel user)
         {
             try
             {

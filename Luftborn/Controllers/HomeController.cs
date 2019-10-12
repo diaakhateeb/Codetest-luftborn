@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Models;
 using Newtonsoft.Json;
 using Serilog;
 using System;
@@ -38,7 +37,7 @@ namespace Luftborn.Controllers
                 var getAllUsersUrl = _iConfig.GetSection("Urls").GetSection("Users").GetValue<string>("GetAllService");
                 var allUsers = await _clientProvider.Client.GetAsync(getAllUsersUrl);
                 var allUsersResult = await allUsers.Content.ReadAsStringAsync();
-                var usersList = JsonConvert.DeserializeObject<List<User>>(allUsersResult);
+                var usersList = JsonConvert.DeserializeObject<List<UserViewModel>>(allUsersResult);
 
                 if (usersList.Any())
                     return View(usersList);
@@ -49,7 +48,7 @@ namespace Luftborn.Controllers
                     var users = await _clientProvider.Client.PostAsync(addManyUsersUrl,
                         new StringContent(usersFromJson.ToString(), Encoding.UTF8, "application/json"));
 
-                    usersList = JsonConvert.DeserializeObject<List<User>>(await users.Content.ReadAsStringAsync());
+                    usersList = JsonConvert.DeserializeObject<List<UserViewModel>>(await users.Content.ReadAsStringAsync());
 
                     return View(usersList);
                 }

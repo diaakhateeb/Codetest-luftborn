@@ -2,7 +2,7 @@
 
 namespace Luftborn.Models.ViewModel
 {
-    public class RegisterViewModel
+    public class UserViewModel
     {
         public string Id { get; set; }
 
