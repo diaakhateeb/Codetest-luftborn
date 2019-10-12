@@ -4,6 +4,8 @@ namespace Luftborn.Models.ViewModel
 {
     public class RegisterViewModel
     {
+        public string Id { get; set; }
+
         [Display(Name = "Full Name")]
         public string Name { get; set; }
 

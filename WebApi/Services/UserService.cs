@@ -13,7 +13,6 @@ namespace WebApi.Services
         public UserService(IUserRepository userRepo)
         {
             _userRepo = userRepo;
-            //_appSettings = appSettings.Value;
         }
 
         public async Task<IEnumerable<User>> GetAll()

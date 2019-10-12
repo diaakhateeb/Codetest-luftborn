@@ -46,7 +46,7 @@ namespace Tests
         {
             var userResult = await _clientProvider.Client.PostAsync("http://localhost/LuftbornWebApi/api/User/Add",
                 new StringContent(
-                    JsonConvert.SerializeObject(new Models.User
+                    JsonConvert.SerializeObject(new RegisterViewModel
                     {
                         Name = "Zaki Joshwa",
                         UserName = "zjoshwa",
@@ -94,7 +94,7 @@ namespace Tests
         public async Task Edit_User_OK()
         {
             var updateUserResult = await _clientProvider.Client.PatchAsync("http://localhost/LuftbornWebApi/api/User/Change",
-                    new StringContent(JsonConvert.SerializeObject(new Models.User
+                    new StringContent(JsonConvert.SerializeObject(new RegisterViewModel
                     {
                         Id = "5d95da3b09f49b55dc425352",
                         Name = "Morten Bondo",
@@ -115,7 +115,7 @@ namespace Tests
         public async Task Edit_User_Fail()
         {
             var updateUserResult = await _clientProvider.Client.PatchAsync("http://localhost/LuftbornWebApi/api/User/Change",
-                    new StringContent(JsonConvert.SerializeObject(new Models.User
+                    new StringContent(JsonConvert.SerializeObject(new RegisterViewModel
                     {
                         Id = "5d95da3b09f49b55dc425352",
                         Name = "Morten Bondo",

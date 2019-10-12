@@ -3,7 +3,6 @@ using Luftborn.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Models;
 using Newtonsoft.Json;
 using Serilog;
 using System;
@@ -33,13 +32,13 @@ namespace Luftborn.Controllers
             if (!userResult.IsSuccessStatusCode)
                 return View();
 
-            var user = JsonConvert.DeserializeObject<User>(await userResult.Content.ReadAsStringAsync());
+            var user = JsonConvert.DeserializeObject<RegisterViewModel>(await userResult.Content.ReadAsStringAsync());
 
             return View(user);
         }
 
         [HttpPost, Authorize]
-        public async Task<IActionResult> Edit(User userData)
+        public async Task<IActionResult> Edit(RegisterViewModel userData)
         {
             try
             {
