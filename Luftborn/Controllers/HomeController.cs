@@ -1,10 +1,12 @@
-﻿using Luftborn.Helpers;
+﻿using AutoMapper;
+using Luftborn.Helpers;
 using Luftborn.Models.ViewModel;
 using Luftborn.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Models;
 using Newtonsoft.Json;
 using Serilog;
 using System;
@@ -22,11 +24,13 @@ namespace Luftborn.Controllers
     {
         private readonly IConfiguration _iConfig;
         private readonly ClientProvider _clientProvider;
+        private readonly IMapper _mapper;
 
-        public HomeController(IConfiguration iConfig, ClientProvider clientProvider)
+        public HomeController(IConfiguration iConfig, ClientProvider clientProvider, IMapper mapper)
         {
             _iConfig = iConfig;
             _clientProvider = clientProvider;
+            _mapper = mapper;
         }
 
         [Authorize]
@@ -37,10 +41,11 @@ namespace Luftborn.Controllers
                 var getAllUsersUrl = _iConfig.GetSection("Urls").GetSection("Users").GetValue<string>("GetAllService");
                 var allUsers = await _clientProvider.Client.GetAsync(getAllUsersUrl);
                 var allUsersResult = await allUsers.Content.ReadAsStringAsync();
-                var usersList = JsonConvert.DeserializeObject<List<UserViewModel>>(allUsersResult);
+                var usersList = JsonConvert.DeserializeObject<List<User>>(allUsersResult);
+                var usersListViewModel = _mapper.Map<List<UserViewModel>>(usersList);
 
                 if (usersList.Any())
-                    return View(usersList);
+                    return View(usersListViewModel);
 
                 {
                     var addManyUsersUrl = _iConfig.GetSection("Urls").GetSection("Users").GetValue<string>("AddManyService");
@@ -48,9 +53,10 @@ namespace Luftborn.Controllers
                     var users = await _clientProvider.Client.PostAsync(addManyUsersUrl,
                         new StringContent(usersFromJson.ToString(), Encoding.UTF8, "application/json"));
 
-                    usersList = JsonConvert.DeserializeObject<List<UserViewModel>>(await users.Content.ReadAsStringAsync());
+                    usersList = JsonConvert.DeserializeObject<List<User>>(await users.Content.ReadAsStringAsync());
+                    usersListViewModel = _mapper.Map<List<UserViewModel>>(usersList);
 
-                    return View(usersList);
+                    return View(usersListViewModel);
                 }
             }
             catch (ArgumentNullException argNullExp)

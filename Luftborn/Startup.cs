@@ -1,4 +1,6 @@
-﻿using Luftborn.Helpers;
+﻿using AutoMapper;
+using Luftborn.Helpers;
+using Luftborn.Models.Profiles;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -28,6 +30,7 @@ namespace Luftborn
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+            services.AddAutoMapper(typeof(UserProfile));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddAuthentication(x =>

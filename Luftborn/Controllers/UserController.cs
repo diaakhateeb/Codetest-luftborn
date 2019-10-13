@@ -1,8 +1,10 @@
-﻿using Luftborn.Helpers;
+﻿using AutoMapper;
+using Luftborn.Helpers;
 using Luftborn.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Models;
 using Newtonsoft.Json;
 using Serilog;
 using System;
@@ -16,11 +18,13 @@ namespace Luftborn.Controllers
     {
         private readonly IConfiguration _iConfig;
         private readonly ClientProvider _clientProvider;
+        private readonly IMapper _mapper;
 
-        public UserController(IConfiguration iConfig, ClientProvider clientProvider)
+        public UserController(IConfiguration iConfig, ClientProvider clientProvider, IMapper mapper)
         {
             _iConfig = iConfig;
             _clientProvider = clientProvider;
+            _mapper = mapper;
         }
 
         [Authorize]
@@ -32,9 +36,10 @@ namespace Luftborn.Controllers
             if (!userResult.IsSuccessStatusCode)
                 return View();
 
-            var user = JsonConvert.DeserializeObject<UserViewModel>(await userResult.Content.ReadAsStringAsync());
+            var user = JsonConvert.DeserializeObject<User>(await userResult.Content.ReadAsStringAsync());
+            var userViewModel = _mapper.Map<UserViewModel>(user);
 
-            return View(user);
+            return View(userViewModel);
         }
 
         [HttpPost, Authorize]
