@@ -42,10 +42,12 @@ namespace Luftborn.Controllers
                 var allUsers = await _clientProvider.Client.GetAsync(getAllUsersUrl);
                 var allUsersResult = await allUsers.Content.ReadAsStringAsync();
                 var usersList = JsonConvert.DeserializeObject<List<User>>(allUsersResult);
-                var usersListViewModel = _mapper.Map<List<UserViewModel>>(usersList);
 
                 if (usersList.Any())
+                {
+                    var usersListViewModel = _mapper.Map<List<UserViewModel>>(usersList);
                     return View(usersListViewModel);
+                }
 
                 {
                     var addManyUsersUrl = _iConfig.GetSection("Urls").GetSection("Users").GetValue<string>("AddManyService");
@@ -54,7 +56,7 @@ namespace Luftborn.Controllers
                         new StringContent(usersFromJson.ToString(), Encoding.UTF8, "application/json"));
 
                     usersList = JsonConvert.DeserializeObject<List<User>>(await users.Content.ReadAsStringAsync());
-                    usersListViewModel = _mapper.Map<List<UserViewModel>>(usersList);
+                    var usersListViewModel = _mapper.Map<List<UserViewModel>>(usersList);
 
                     return View(usersListViewModel);
                 }
