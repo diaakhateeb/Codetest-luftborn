@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -31,8 +33,11 @@ namespace Luftborn.Controllers
             var loginUrl = _iConfig.GetSection("Urls").GetSection("Auth").GetValue<string>("Login");
             var loginResult = await _clientProvider.Client.PostAsJsonAsync(loginUrl + "?username=" + loginVm.Username, loginVm);
 
-            if (!loginResult.IsSuccessStatusCode)
+            if (loginResult.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                TempData["errorMsg"] = JsonConvert.DeserializeObject<string>(await loginResult.Content.ReadAsStringAsync());
                 return View();
+            }
 
             var claims = new List<Claim>
                 {

@@ -3,34 +3,37 @@
     Layout = "_Layout";
 }
 
-<!DOCTYPE html>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Login</title>
-</head>
-<body>
-    @using (Html.BeginForm("Login", "Account", FormMethod.Post))
-    {
-        <table class='table table-striped'>
-            <tr>
-                <td><label>Username<span style="color: red"> *</span></label></td>
-                <td>
-                    @Html.TextBoxFor(m => m.Username, new { @class = "form-control", style = "width: 250px", required = "required", @placeholder = "Required" })
-                </td>
-            </tr>
-            <tr>
-                <td><label>Password<span style="color: red"> *</span></label></td>
-                <td>
-                    @Html.TextBoxFor(m => m.Password, new { type = "password", @class = "form-control", style = "width: 250px", required = "required", @placeholder = "any password" })
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><input class="btn btn-primary" type="submit" value="Login" /></td>
-            </tr>
-        </table>
-    }
-</body>
-</html>
+<script type="text/javascript">
+    $(document).ready(() => {
+        @if (TempData["errorMsg"] != null)
+        {
+            @:document.getElementById("loginResult").innerHTML = '@TempData["errorMsg"].ToString()';
+        }
+    });
+</script>
+
+<div id="loginResult" style="text-align: center; color: white; background-color: red; font-weight:bolder"></div><br />
+
+@using (Html.BeginForm("Login", "Account", FormMethod.Post))
+{
+    <table class='table table-striped'>
+        <tr>
+            <td><label>Username<span style="color: red"> *</span></label></td>
+            <td>
+                @Html.TextBoxFor(m => m.Username, new { @class = "form-control", style = "width: 250px", required = "required", @placeholder = "Required" })
+            </td>
+        </tr>
+        <tr>
+            <td><label>Password<span style="color: red"> *</span></label></td>
+            <td>
+                @Html.TextBoxFor(m => m.Password, new { type = "password", @class = "form-control", style = "width: 250px", required = "required", @placeholder = "any password" })
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input class="btn btn-primary" type="submit" value="Login" /></td>
+        </tr>
+    </table>
+}
