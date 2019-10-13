@@ -23,16 +23,14 @@ function getUserById(id) {
 function deleteUser(id) {
     if (confirm("Are you sure?")) {
         $.ajax({
-            url: "http://localhost/LuftbornWebApi/api/User/Delete?id=" + id,
-            type: 'DELETE',
-            success: (result) => {
-                if (result.success) {
-                    location.href = location.href;
-                }
-                else alert("Error deleting user.");
+            url: "User/Delete",
+            type: "DELETE",
+            data: { id: id },
+            success: () => {
+                location.href = location.href;
             },
-            failure: (result) => {
-                alert(result);
+            failure: () => {
+                alert("Error deleting user.");
             }
         });
     }

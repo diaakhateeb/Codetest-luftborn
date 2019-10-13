@@ -119,5 +119,22 @@ namespace Luftborn.Controllers
                 Log.CloseAndFlush();
             }
         }
+
+        [HttpDelete, Authorize]
+        public async Task<ActionResult> Delete(string id)
+        {
+            var deleteUserUrl = _iConfig.GetSection("Urls").GetSection("Users").GetValue<string>("DeleteService");
+            var deleteResult = await _clientProvider.Client.DeleteAsync(deleteUserUrl + "?id=" + id);
+
+            if (!deleteResult.IsSuccessStatusCode)
+                return View("Error", new ErrorViewModel { ErrorMessage = await deleteResult.RequestMessage.Content.ReadAsStringAsync() });
+
+            var result = JsonConvert.DeserializeObject<dynamic>(await deleteResult.Content.ReadAsStringAsync());
+            if (result.success == true)
+                return RedirectToAction("Index", "Home");
+
+            return View("Error", new ErrorViewModel { ErrorMessage = result.responseText });
+
+        }
     }
 }
